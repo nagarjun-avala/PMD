@@ -1,7 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server';
 
-const isPublicRoute = createRouteMatcher(['/', '/site', '/api/uploadthing', '/agency/sign-in(.*)', '/agency/sign-up(.*)']);
+const isPublicRoute = createRouteMatcher(
+    ['/', '/site', '/api/uploadthing', '/agency/sign-in(.*)', '/agency/sign-up(.*)']
+);
 
 async function afterAuth(req: NextRequest) {
     //rewrite for domains
@@ -56,8 +58,8 @@ async function beforeAuth(req: NextRequest) {
     }
 }
 
-export default clerkMiddleware((auth, request) => {
-    const { userId } = auth();
+export default clerkMiddleware(async (auth, request) => {
+    const { userId } = await auth();
 
     if (userId) {
         // console.log(" authenticated")
@@ -68,9 +70,8 @@ export default clerkMiddleware((auth, request) => {
         beforeAuth(request)
     }
 
-
     if (!isPublicRoute(request)) {
-        auth().protect();
+        await auth.protect();
     }
 });
 
